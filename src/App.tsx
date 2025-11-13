@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Trash2, Edit2, Plus, X, Save, AlertCircle } from 'lucide-react';
 import './index.css'; // استدعاء ملف CSS الجديد
 
-const API_URL = '/api';
+const API_URL = 'students';
 
 interface Student {
   _id: string;
@@ -11,6 +11,7 @@ interface Student {
   age?: string;
   class?: string;
 }
+
 
 export default function StudentManagement() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -44,6 +45,7 @@ export default function StudentManagement() {
     setLoading(false);
   }
 };
+
 
   const handleAddStudent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,7 +82,8 @@ export default function StudentManagement() {
   }
 };
 
-  const handleDeleteStudent = async (id: string) => {
+
+  const handleDeleteStudent = async (id: number) => {
     if (!window.confirm('هل أنت متأكد من حذف هذا الطالب؟')) return;
     try {
       const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
@@ -164,7 +167,7 @@ export default function StudentManagement() {
                 <button onClick={() => openEditModal(student)} title="تعديل">
                   <Edit2 size={18} />
                 </button>
-                <button onClick={() => handleDeleteStudent(student._id)} title="حذف">
+                <button onClick={() => handleDeleteStudent(Number(student._id))} title="حذف">
                   <Trash2 size={18} />
                 </button>
               </div>
