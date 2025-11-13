@@ -4,17 +4,26 @@ import './index.css'; // استدعاء ملف CSS الجديد
 
 const API_URL = 'http://20.2.211.179/students';
 
+interface Student {
+  _id: string;
+  fullName: string;
+  email?: string;
+  age?: string;
+  class?: string;
+}
+
+
 export default function StudentManagement() {
-  const [students, setStudents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingStudent, setEditingStudent] = useState(null);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    age: '',
-    class: ''
+  fullName: '',
+  email: '',
+  age: '',
+  class: ''
   });
 
   useEffect(() => {
@@ -22,21 +31,23 @@ export default function StudentManagement() {
   }, []);
 
   const fetchStudents = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch(API_URL);
-      if (!response.ok) throw new Error('فشل في جلب البيانات');
-      const data = await response.json();
-      setStudents(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    setError(null);
+    const response = await fetch(API_URL);
+    if (!response.ok) throw new Error('فشل في جلب البيانات');
+    const data: Student[] = await response.json(); // ✅ تعريف نوع البيانات هنا
+    setStudents(data);
+  } catch (err: unknown) {
+    if (err instanceof Error) setError(err.message);
+    else setError('حدث خطأ غير معروف');
+  } finally {
+    setLoading(false);
+  }
+};
 
-  const handleAddStudent = async (e) => {
+
+  const handleAddStudent = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await fetch(API_URL, {
@@ -47,36 +58,41 @@ export default function StudentManagement() {
       if (!response.ok) throw new Error('فشل في إضافة الطالب');
       await fetchStudents();
       closeModal();
-    } catch (err) {
-      setError(err.message);
-    }
+    } catch (err: unknown) {
+  if (err instanceof Error) setError(err.message);
+  else setError('حدث خطأ غير معروف');
+}
   };
 
-  const handleUpdateStudent = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch(`${API_URL}/${editingStudent._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      if (!response.ok) throw new Error('فشل في تحديث البيانات');
-      await fetchStudents();
-      closeModal();
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+  const handleUpdateStudent = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!editingStudent) return;
+  try {
+    const response = await fetch(`${API_URL}/${editingStudent._id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+    if (!response.ok) throw new Error('فشل في تحديث البيانات');
+    await fetchStudents();
+    closeModal();
+  } catch (err: unknown) {
+    if (err instanceof Error) setError(err.message);
+    else setError('حدث خطأ غير معروف');
+  }
+};
 
-  const handleDeleteStudent = async (id) => {
+
+  const handleDeleteStudent = async (id: number) => {
     if (!window.confirm('هل أنت متأكد من حذف هذا الطالب؟')) return;
     try {
       const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('فشل في حذف الطالب');
       await fetchStudents();
-    } catch (err) {
-      setError(err.message);
-    }
+    } catch (err: unknown) {
+  if (err instanceof Error) setError(err.message);
+  else setError('حدث خطأ غير معروف');
+}
   };
 
   const openAddModal = () => {
@@ -85,13 +101,13 @@ export default function StudentManagement() {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (student) => {
+  const openEditModal = (student: Student) => {
     setEditingStudent(student);
     setFormData({
       fullName: student.fullName,
-      email: student.email,
-      age: student.age,
-      class: student.class
+      email: student.email || '',
+      age: student.age || '',
+      class: student.class || ''
     });
     setIsModalOpen(true);
   };
@@ -102,7 +118,7 @@ export default function StudentManagement() {
     setFormData({ fullName: '', email: '', age: '', class: '' });
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -151,7 +167,7 @@ export default function StudentManagement() {
                 <button onClick={() => openEditModal(student)} title="تعديل">
                   <Edit2 size={18} />
                 </button>
-                <button onClick={() => handleDeleteStudent(student._id)} title="حذف">
+                <button onClick={() => handleDeleteStudent(Number(student._id))} title="حذف">
                   <Trash2 size={18} />
                 </button>
               </div>
