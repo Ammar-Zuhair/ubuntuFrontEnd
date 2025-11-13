@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Trash2, Edit2, Plus, X, Save, AlertCircle } from 'lucide-react';
 import './index.css'; // استدعاء ملف CSS الجديد
 
-const API_URL = 'students';
+const API_URL = '/students';
 
 interface Student {
   _id: string;
