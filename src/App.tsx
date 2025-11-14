@@ -50,18 +50,22 @@ export default function StudentManagement() {
   const handleAddStudent = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setError(null);
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      if (!response.ok) throw new Error('فشل في إضافة الطالب');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'فشل في إضافة الطالب');
+      }
       await fetchStudents();
       closeModal();
     } catch (err: unknown) {
-  if (err instanceof Error) setError(err.message);
-  else setError('حدث خطأ غير معروف');
-}
+      if (err instanceof Error) setError(err.message);
+      else setError('حدث خطأ غير معروف');
+    }
   };
 
   const handleUpdateStudent = async (e: React.FormEvent) => {
