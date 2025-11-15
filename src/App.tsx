@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Trash2, Edit2, Plus, X, Save, AlertCircle } from 'lucide-react';
 import './index.css'; // استدعاء ملف CSS الجديد
 
-const API_URL = 'http://20.2.68.0/students';
+const API_URL = 'https://synovially-nonendurable-adriel.ngrok-free.dev/students';
 
 interface Student {
   _id: string;
